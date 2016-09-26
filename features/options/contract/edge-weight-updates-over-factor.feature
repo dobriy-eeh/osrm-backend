@@ -21,7 +21,7 @@ Feature: osrm-contract command line option: edge-weight-updates-over-factor
         1,3,100
         """
         And the data has been extracted
-        When I run "osrm-contract --edge-weight-updates-over-factor 2 --segment-speed-file speeds.csv {extracted_base}.osrm"
+        When I run "osrm-contract --edge-weight-updates-over-factor 2 --segment-speed-file speeds.csv {processed_file}"
         Then stderr should contain "weight updates"
         Then stderr should contain "New speed: 100 kph"
         And I route I should get

@@ -95,7 +95,7 @@ EdgeWeight getNewWeight(IterType new_speed_iter,
             : INVALID_EDGE_WEIGHT;
     // the check here is enabled by the `--edge-weight-updates-over-factor` flag
     // it logs a warning if the new weight exceeds a heuristic of what a reasonable weight update is
-    if (log_edge_updates_factor > 0 && new_segment_weight != INVALID_EDGE_WEIGHT)
+    if (log_edge_updates_factor > 0 && new_segment_weight != 0)
     {
         auto newSecs = new_segment_weight / 10.0;
         auto oldSecs = oldWeight / 10.0;
@@ -407,7 +407,7 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
     const std::string &datasource_names_filename,
     const std::string &datasource_indexes_filename,
     const std::string &rtree_leaf_filename,
-    const double &log_edge_updates_factor)
+    const double log_edge_updates_factor)
 {
     if (segment_speed_filenames.size() > 255 || turn_penalty_filenames.size() > 255)
         throw util::exception("Limit of 255 segment speed and turn penalty files each reached");
@@ -597,6 +597,7 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
                 {
                     const unsigned forward_begin =
                         m_geometry_indices.at(leaf_object.forward_packed_geometry_id);
+                    auto current_segment = m_geometry_list[forward_begin + leaf_object.fwd_segment_position];
 
                     if (leaf_object.fwd_segment_position == 0)
                     {
@@ -611,8 +612,7 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
                                                    leaf_object.fwd_segment_position - 1]
                                        .node_id]);
                         v = &(internal_to_external_node_map
-                                  [m_geometry_list[forward_begin + leaf_object.fwd_segment_position]
-                                       .node_id]);
+                                  [current_segment.node_id]);
                     }
                     const double segment_length = util::coordinate_calculation::greatCircleDistance(
                         util::Coordinate{u->lon, u->lat}, util::Coordinate{v->lon, v->lat});
@@ -626,11 +626,9 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
                             forward_speed_iter,
                             segment_length,
                             segment_speed_filenames,
-                            m_geometry_list[forward_begin + leaf_object.fwd_segment_position]
-                                .weight,
+                            current_segment.weight,
                             log_edge_updates_factor);
-                        m_geometry_list[forward_begin + leaf_object.fwd_segment_position].weight =
-                            new_segment_weight;
+                        current_segment.weight = new_segment_weight;
                         m_geometry_datasource[forward_begin + leaf_object.fwd_segment_position] =
                             forward_speed_iter->speed_source.source;
 
