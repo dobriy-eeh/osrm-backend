@@ -21,10 +21,8 @@ Feature: osrm-contract command line option: edge-weight-updates-over-factor
         1,3,100
         """
         And the data has been extracted
-        When I run "osrm-contract --edge-weight-updates-over-factor 2 --segment-speed-file speeds.csv {processed_file}"
-        Then stderr should contain "weight updates"
-        Then stderr should contain "New speed: 100 kph"
+        When I run "osrm-contract --edge-weight-updates-over-factor 2 --segment-speed-file {speeds_file} {processed_file}"
         And I route I should get
             | from | to | route          | speed    |
-            | a    | b  | ab,ab          | 100 km/h  |
-            | a    | c  | ac,ac          | 100 km/h |
+            | a    | b  | ab,ab          | 91 km/h  |
+            | a    | c  | ab,ab,ac,ac    | 64 km/h  |
